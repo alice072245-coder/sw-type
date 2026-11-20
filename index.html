@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>我是哪一型的社工人</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: one phone-width column, one screen per step (start → 6 timed questions → result card).
+   Look: the same pastel notebook palette as the class deck. */
+:root{
+  --bg:#f3f6f0; --paper:#ffffff; --ink:#2d3730; --muted:#67736b; --line:#dbe3d6;
+  --leaf:#5c8c4b; --leaf-soft:#e2eed9; --lav:#7f6cbf; --lav-soft:#ebe7f8;
+  --rose:#c95f87; --rose-soft:#f9e2eb; --sun:#c48c1c; --sun-soft:#f8ebcd;
+  --display:"LXGW WenKai TC","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141915; --paper:#1c231e; --ink:#e8eee5; --muted:#9ba89f; --line:#2e3a31;
+  --leaf:#93c47e; --leaf-soft:#24321f; --lav:#b4a5ec; --lav-soft:#29243f;
+  --rose:#ee95b7; --rose-soft:#3b2430; --sun:#e8bb59; --sun-soft:#382e1b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141915; --paper:#1c231e; --ink:#e8eee5; --muted:#9ba89f; --line:#2e3a31;
+  --leaf:#93c47e; --leaf-soft:#24321f; --lav:#b4a5ec; --lav-soft:#29243f;
+  --rose:#ee95b7; --rose-soft:#3b2430; --sun:#e8bb59; --sun-soft:#382e1b; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 28px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--lav);outline-offset:2px}
+.wrap{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.top{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:17px;color:var(--leaf)}
+.top svg{width:26px;height:26px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:24px;padding:24px 20px;display:flex;flex-direction:column;gap:16px}
+h1{font-family:var(--display);font-size:34px;line-height:1.25;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-size:25px;line-height:1.4;margin:0;text-wrap:balance}
+p{margin:0;line-height:1.7;color:var(--muted)}
+.mascot{display:flex;justify-content:center}
+.mascot svg{width:150px;height:150px}
+.go{border:0;border-radius:18px;padding:16px;background:var(--leaf);color:var(--paper);font-size:20px;font-weight:700}
+.go.ghost{background:var(--paper);color:var(--leaf);border:2px solid var(--leaf);font-size:17px;padding:12px}
+.rules{display:flex;gap:8px;flex-wrap:wrap}
+.rules span{padding:6px 12px;border-radius:999px;background:var(--lav-soft);color:var(--lav);font-weight:700;font-size:14px}
+.prog{display:flex;gap:6px}
+.prog i{flex:1;height:6px;border-radius:999px;background:var(--line)}
+.prog i.on{background:var(--leaf)}
+.qhead{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--muted)}
+.axis{padding:4px 10px;border-radius:999px;font-weight:700;font-size:13px}
+.axis.R{background:var(--rose-soft);color:var(--rose)} .axis.S{background:var(--sun-soft);color:var(--sun)}
+.timer{display:flex;align-items:center;gap:10px}
+.tbar{flex:1;height:10px;border-radius:999px;background:var(--line);overflow:hidden}
+.tbar div{height:100%;background:var(--leaf);transform-origin:left center}
+.timer.hurry .tbar div{background:var(--rose)}
+.tnum{font-family:var(--display);font-size:26px;font-weight:700;min-width:28px;text-align:right;font-variant-numeric:tabular-nums}
+.timer.hurry .tnum{color:var(--rose)}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;align-items:center;gap:12px;padding:15px 16px;border-radius:16px;border:2px solid transparent;background:var(--cs);text-align:left;font-size:17px;line-height:1.45}
+.opt .l{width:34px;height:34px;border-radius:10px;background:var(--c);color:var(--paper);display:grid;place-items:center;font-weight:700;flex:none}
+.opt.sel{border-color:var(--c);box-shadow:0 0 0 3px var(--cs)}
+.c-lav{--c:var(--lav);--cs:var(--lav-soft)} .c-leaf{--c:var(--leaf);--cs:var(--leaf-soft)} .c-rose{--c:var(--rose);--cs:var(--rose-soft)}
+.note{font-size:13px;color:var(--muted);text-align:center}
+.reveal{animation:pop .5s cubic-bezier(.2,.9,.3,1.3) both}
+@keyframes pop{from{transform:scale(.85);opacity:.3}to{transform:none;opacity:1}}
+.type{font-family:var(--display);font-size:40px;font-weight:700;color:var(--rose);line-height:1.15}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tags span{padding:5px 11px;border-radius:999px;font-size:14px;font-weight:700}
+.t1{background:var(--rose-soft);color:var(--rose)} .t2{background:var(--sun-soft);color:var(--sun)}
+.nine{display:grid;grid-template-columns:52px repeat(3,1fr);gap:4px;font-size:12px}
+.nine .h{display:grid;place-items:center;text-align:center;border-radius:8px;background:var(--leaf-soft);color:var(--leaf);font-weight:700;padding:5px 2px;line-height:1.3}
+.nine .rh{background:var(--sun-soft);color:var(--sun)}
+.nine .c{border-radius:10px;padding:8px 4px;text-align:center;background:var(--bg);color:var(--muted);line-height:1.3;font-weight:700;display:grid;place-items:center;min-height:52px}
+.nine .c.me{background:var(--rose);color:var(--paper);transform:scale(1.06)}
+.meter{display:flex;flex-direction:column;gap:6px}
+.meter .lab{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+.meter .track{position:relative;height:12px;border-radius:999px;background:linear-gradient(90deg,var(--leaf-soft),var(--lav-soft),var(--rose-soft))}
+.meter .dot{position:absolute;top:50%;width:22px;height:22px;border-radius:50%;background:var(--ink);border:3px solid var(--paper);transform:translate(-50%,-50%)}
+.meter b{font-size:14px}
+.fields{display:flex;flex-direction:column;gap:8px}
+.fields div{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--lav-soft);font-weight:700}
+.fields div::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--lav);flex:none}
+.share{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:14px;border:2px dashed var(--line);text-align:center}
+.share b{font-size:18px}
+@media (prefers-reduced-motion: reduce){.reveal{animation:none}}
+
+/* compact embed mode: fit one question in a short phone-height frame */
+body{padding-block:8px 12px;font-size:15px}
+.wrap{gap:10px}
+.top{font-size:15px}
+.top svg{width:20px;height:20px}
+.card{padding:16px 14px;gap:10px;border-radius:18px}
+h1{font-size:26px}
+h2{font-size:19px;line-height:1.4}
+p{line-height:1.55;font-size:14px}
+.mascot svg{width:96px;height:96px}
+.go{padding:12px;font-size:18px;border-radius:14px}
+.go.ghost{padding:10px;font-size:15px}
+.rules span{font-size:13px;padding:4px 10px}
+.prog i{height:5px}
+.qhead{font-size:13px}
+.tnum{font-size:20px}
+.tbar{height:8px}
+.opts{gap:8px}
+.opt{padding:10px 12px;font-size:15px;gap:10px;border-radius:13px;line-height:1.4}
+.opt .l{width:28px;height:28px;border-radius:8px;font-size:14px}
+.note{font-size:12px}
+.type{font-size:30px}
+.tags span{font-size:12px;padding:4px 9px}
+.fields{gap:6px}
+.fields div{padding:7px 10px;font-size:14px}
+.nine{font-size:11px}
+.nine .c{min-height:40px;padding:5px 3px}
+.share{padding:10px}
+.share b{font-size:15px}
+
+/* ultra-compact when the embed frame is short (e.g. Google Sites on a phone) */
+@media (max-height: 560px){
+  body{padding-block:6px 8px;font-size:13px}
+  .wrap{gap:6px}
+  .top{display:none}
+  .prog i{height:4px}
+  .card{padding:10px 12px;gap:6px;border-radius:14px}
+  h1{font-size:21px}
+  h2{font-size:16px;line-height:1.35}
+  p{font-size:12.5px;line-height:1.5}
+  .mascot{display:none}
+  .rules span{font-size:11.5px;padding:3px 8px}
+  .go{padding:9px;font-size:16px}
+  .go.ghost{padding:8px;font-size:14px}
+  .qhead{font-size:12px}
+  .axis{font-size:11px;padding:2px 8px}
+  .tnum{font-size:16px}
+  .tbar{height:6px}
+  .opts{gap:6px}
+  .opt{padding:7px 10px;font-size:13.5px;gap:8px;border-radius:11px;line-height:1.35}
+  .opt .l{width:24px;height:24px;border-radius:7px;font-size:12px}
+  .note{display:none}
+  .type{font-size:24px}
+  .reveal .mascot{display:none}
+  .fields div{padding:5px 9px;font-size:13px}
+  .nine .c{min-height:32px;font-size:10.5px}
+}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const DUR = 10000;
+const SPROUT = '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 29V15" stroke="var(--leaf)" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M16 16C16 9 11 5 4 5c0 7 5 11 12 11z" fill="var(--leaf)"/><path d="M16 14c0-6 4-9 11-9 0 6-4 9-11 9z" fill="var(--leaf)" opacity=".7"/></svg>';
+const MASCOT = `<svg viewBox="-170 -230 340 370" aria-hidden="true">
+  <path d="M0 -150 C-10 -200 -70 -215 -110 -190 C-80 -150 -30 -140 0 -150 Z" fill="#5c8c4b"/>
+  <path d="M0 -150 C15 -195 75 -205 105 -175 C75 -140 25 -135 0 -150 Z" fill="#7fae6b"/>
+  <path d="M0 -150 V-120" stroke="#5c8c4b" stroke-width="8" stroke-linecap="round"/>
+  <path d="M-95 -40 C-150 -70 -170 -110 -160 -140" stroke="#8cbf74" stroke-width="22" fill="none" stroke-linecap="round"/>
+  <path d="M95 -40 C150 -70 170 -110 160 -140" stroke="#8cbf74" stroke-width="22" fill="none" stroke-linecap="round"/>
+  <ellipse cx="0" cy="0" rx="120" ry="125" fill="#a9d293"/><ellipse cx="0" cy="20" rx="85" ry="80" fill="#c7e4b6"/>
+  <g fill="#2d3730"><path d="M-42 -50l7 15 15 6-15 6-7 15-7-15-15-6 15-6z"/><path d="M42 -50l7 15 15 6-15 6-7 15-7-15-15-6 15-6z"/></g>
+  <ellipse cx="-72" cy="-5" rx="18" ry="11" fill="#f2a7c1"/><ellipse cx="72" cy="-5" rx="18" ry="11" fill="#f2a7c1"/>
+  <path d="M-30 5 Q0 45 30 5 Z" fill="#2d3730"/></svg>`;
+
+const QS = [
+  {axis:'R', text:'第一次見到服務對象，你比較像…', opts:[['慢熱，喜歡慢慢建立長期關係',2],['可以聊很深，也能只談重點',1],['很會破冰，處理完就換下一位',0]]},
+  {axis:'S', text:'突然遇到緊急狀況，你的反應是…', opts:[['有點慌，希望事先有 SOP 可以照著做',2],['能處理，但不希望天天發生',1],['腎上腺素上升，快速解決最有成就感',0]]},
+  {axis:'R', text:'你希望陪伴一位服務對象多久？', opts:[['一年以上，看著他慢慢改變',2],['幾個月，完成一個階段目標',1],['一兩次，幫他接上資源就好',0]]},
+  {axis:'S', text:'你理想的一週工作節奏是…', opts:[['流程固定、可以預期',2],['大致規律，偶爾有變化',1],['每天都不一樣，越有挑戰越好',0]]},
+  {axis:'R', text:'哪件事最讓你有成就感？', opts:[['多年後，服務對象還記得你',2],['一個家庭的關係慢慢修復',1],['一通電話，馬上幫人解決問題',0]]},
+  {axis:'S', text:'面對情緒激動的家屬、警察或法院，你會…', opts:[['能避就避，比較想待在穩定的環境',2],['偶爾可以，事後需要時間充電',1],['不太怕，甚至覺得刺激',0]]},
+];
+const GRID = [
+  [{n:'穩穩陪伴型',d:'你重視關係，也喜歡規律的節奏。在穩定的環境裡長期陪伴一個人，最能發揮你的耐心。',f:['學校社工','兒少安置機構','安養／長照機構']},
+   {n:'細水長流型',d:'你可深可淺，又喜歡可預期的工作。穩定個案的長期服務很適合你。',f:['家服中心（穩定案）','居家長照社工','日照中心／據點']},
+   {n:'流程達人型',d:'你擅長把事情做得清楚、有效率。制度化的窗口與申請業務是你的主場。',f:['福利申請專責','公部門庶務社工','資源轉介窗口']}],
+  [{n:'社區耕耘型',d:'你願意長期投入，也能接受一些變化。陪伴社區和家庭慢慢長出力量，很有你的風格。',f:['身障支持服務','社區營造方案社工','家服中心']},
+   {n:'彈性平衡型',d:'你在關係和節奏上都很有彈性，能在團隊中扮演穩定的中間力量。',f:['醫療社工','精神科社工（非急性）','家防中心']},
+   {n:'資源連結型',d:'你反應快、懂得找資源，又不怕偶爾的變化。初評和轉介需要你這種人。',f:['初評／轉介社工','社資諮詢窗口','短期計畫人員']}],
+  [{n:'硬核守護型',d:'你能承受高壓，也願意長期陪伴最困難的個案。你是很多人生命中的關鍵大人。',f:['司法／觀護社工','家暴追蹤個案','高風險青少年']},
+   {n:'危機應變型',d:'你冷靜、扛得住，能在混亂中穩住局面，也能跟不同機構合作。',f:['精神病急性期追蹤','高風險家庭密集訪視','衛政／跨機構合作']},
+   {n:'急救前線型',d:'你是腎上腺素派！在第一線快速判斷、立即行動，是你最有成就感的時刻。',f:['急診醫療社工','警政合作專案','緊急通報窗口']}],
+];
+const COLS = ['關係深','關係中','關係淺'];
+const ROWS = ['穩定高','穩定中','穩定低'];
+const COLOR = ['c-lav','c-leaf','c-rose'];
+
+let step = -1, picks = [], raf = 0, endAt = 0;
+
+function start(){ step = 0; picks = []; drawQ(); }
+function drawQ(){
+  cancelAnimationFrame(raf);
+  const q = QS[step];
+  $('#app').innerHTML = `<div class="top">${SPROUT}我是哪一型的社工人？</div>
+    <div class="prog">${QS.map((_, i) => `<i class="${i <= step ? 'on' : ''}"></i>`).join('')}</div>
+    <div class="card">
+      <div class="qhead"><span>第 ${step + 1} / ${QS.length} 題</span><span class="axis ${q.axis}">${q.axis === 'R' ? '互動方式' : '工作強度'}</span></div>
+      <div class="timer" id="timer"><div class="tbar"><div id="bar"></div></div><span class="tnum" id="num">10</span></div>
+      <h2>${q.text}</h2>
+      <div class="opts">${q.opts.map((o, i) => `<button class="opt ${COLOR[i]}" data-i="${i}"><span class="l">${'ABC'[i]}</span>${o[0]}</button>`).join('')}</div>
+      <p class="note">10 秒內選一個最像你的答案</p>
+    </div>`;
+  document.querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => choose(+b.dataset.i)));
+  endAt = performance.now() + DUR;
+  const tick = now => {
+    const left = Math.max(0, endAt - now);
+    const bar = $('#bar'), num = $('#num'), t = $('#timer');
+    if (!bar) return;
+    bar.style.transform = `scaleX(${left / DUR})`;
+    num.textContent = Math.ceil(left / 1000);
+    t.classList.toggle('hurry', left <= 3000);
+    if (left <= 0) { choose(1, true); return; }
+    raf = requestAnimationFrame(tick);
+  };
+  raf = requestAnimationFrame(tick);
+}
+function choose(i, timeout){
+  cancelAnimationFrame(raf);
+  picks[step] = i;
+  const btn = document.querySelector(`.opt[data-i="${i}"]`);
+  document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+  if (btn && !timeout) btn.classList.add('sel');
+  const n = $('.note'); if (n && timeout) n.textContent = '時間到！這題先幫你選中間的答案';
+  setTimeout(() => { step++; step < QS.length ? drawQ() : result(); }, timeout ? 900 : 350);
+}
+function result(){
+  const R = [], S = [];
+  QS.forEach((q, k) => (q.axis === 'R' ? R : S).push(q.opts[picks[k]][1]));
+  const r = R.reduce((a,b) => a+b, 0) / R.length, s = S.reduce((a,b) => a+b, 0) / S.length;
+  const b = x => x < 0.67 ? 0 : x < 1.34 ? 1 : 2;
+  const col = 2 - b(r), row = 2 - b(s);
+  const g = GRID[row][col];
+  let cells = '<div class="h" style="background:transparent"></div>' + COLS.map(c => `<div class="h">${c}</div>`).join('');
+  for (let y = 0; y < 3; y++) {
+    cells += `<div class="h rh">${ROWS[y]}</div>`;
+    for (let x = 0; x < 3; x++) cells += `<div class="c${y === row && x === col ? ' me' : ''}">${GRID[y][x].n}</div>`;
+  }
+  const pr = (2 - r) / 2 * 100, ps = (2 - s) / 2 * 100;
+  $('#app').innerHTML = `<div class="top">${SPROUT}我是哪一型的社工人？</div>
+    <div class="card reveal">
+      <div class="mascot" style="margin-bottom:-8px"><svg viewBox="-170 -230 340 370" style="width:72px;height:72px" aria-hidden="true">${MASCOT.slice(MASCOT.indexOf('>') + 1, MASCOT.lastIndexOf('</svg>'))}</svg></div>
+      <p style="text-align:center">你的社工人類型是</p>
+      <div class="type" style="text-align:center">${g.n}</div>
+      <div class="tags" style="justify-content:center"><span class="t1">${['長期陪伴','可深可淺','短期介入'][col]}</span><span class="t2">${['流程穩定','偶有變化','高壓挑戰'][row]}</span></div>
+      <p style="color:var(--ink)">${g.d}</p>
+    </div>
+    <div class="card">
+      <h2 style="font-size:20px">適合你的領域</h2>
+      <div class="fields">${g.f.map(f => `<div>${f}</div>`).join('')}</div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:20px">你在九宮格的位置</h2>
+      <div class="nine">${cells}</div>
+      <div class="meter"><div class="lab"><span>長期陪伴</span><b>互動方式</b><span>短期介入</span></div><div class="track"><span class="dot" style="left:${pr}%"></span></div></div>
+      <div class="meter"><div class="lab"><span>流程穩</span><b>工作強度</b><span>壓力高</span></div><div class="track"><span class="dot" style="left:${ps}%"></span></div></div>
+    </div>
+    <div class="share"><b>跟大螢幕分享！</b><p>舉手告訴老師你是「${g.n}」，或截圖留念</p></div>
+    <button class="go ghost" id="again">再玩一次</button>
+    <p class="note">這只是興趣方向的參考。實習時多嘗試不同領域，才知道自己真正適合哪裡。</p>`;
+  $('#again').addEventListener('click', start);
+  window.scrollTo({top: 0});
+}
+function intro(){
+  $('#app').innerHTML = `<div class="top">${SPROUT}社工師考照攻略・暖身遊戲</div>
+    <div class="card">
+      <div class="mascot">${MASCOT}</div>
+      <h1>我是哪一型的社工人？</h1>
+      <p>6 個情境題，測出你的「互動方式」和「工作強度」，找到你在社工九宮格裡的位置。</p>
+      <div class="rules"><span>6 題</span><span>每題 10 秒</span><span>不用登入</span></div>
+      <button class="go" id="go">開始測驗</button>
+    </div>`;
+  $('#go').addEventListener('click', start);
+}
+intro();
+})();
+</script>
+
+</html>
